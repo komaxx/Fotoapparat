@@ -129,7 +129,7 @@ public class CaptureRequestFactory {
                 .cancelPrecaptureExposure(true)
                 .flash(flash)
                 .focus(focus)
-                .setExposureMode(true)
+                .setExposureMode(flash != null)
                 .sensorOrientation(sensorOrientation)
                 .build();
     }

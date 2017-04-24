@@ -2,6 +2,7 @@ package io.fotoapparat.hardware.v2.captor;
 
 import android.hardware.camera2.CaptureResult;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
 /**
@@ -11,26 +12,33 @@ import android.support.annotation.RequiresApi;
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 class LockFocusCallback extends StageCallback {
 
-    @Override
-    public Stage processResult(CaptureResult result) {
-        Integer autoFocusState = result.get(CaptureResult.CONTROL_AF_STATE);
+	@Override
+	public Stage processResult(Result result) {
+		final Integer autoFocusState = result.getAutoFocusState();
+		final Integer autoExposureState = result.getAutoExposureState();
 
-        if (autoFocusState != null && isFocusLocked(autoFocusState)) {
+		if (isAutoFocusPossible(autoFocusState)
+				&& isAutoExposurePossible(autoExposureState)
+				&& !isAutoExposureReady(autoExposureState)) {
+			return Stage.PRECAPTURE;
+		}
 
-            Integer autoExposure = result.get(CaptureResult.CONTROL_AE_STATE);
-            if (autoExposure != null && autoExposure == CaptureResult.CONTROL_AE_STATE_CONVERGED) {
-                return Stage.CAPTURE;
-            } else {
-                return Stage.PRECAPTURE;
-            }
+		return Stage.CAPTURE;
+	}
 
-        } else {
-            return Stage.UNFOCUSED;
-        }
-    }
+	private boolean isAutoFocusPossible(@Nullable Integer state) {
+		return state != null
+				&& state != CaptureResult.CONTROL_AF_STATE_INACTIVE;
+	}
 
-    private boolean isFocusLocked(Integer autoFocusState) {
-        return autoFocusState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
-                || autoFocusState == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED;
-    }
+	private boolean isAutoExposurePossible(@Nullable Integer state) {
+		return state != null
+				&& state != CaptureResult.CONTROL_AE_STATE_INACTIVE;
+	}
+
+	private boolean isAutoExposureReady(@Nullable Integer state) {
+		return state != null
+				&& state == CaptureResult.CONTROL_AE_STATE_CONVERGED;
+	}
+
 }

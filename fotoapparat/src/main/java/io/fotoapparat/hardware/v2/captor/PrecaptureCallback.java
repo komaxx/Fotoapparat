@@ -1,6 +1,5 @@
 package io.fotoapparat.hardware.v2.captor;
 
-import android.hardware.camera2.CaptureResult;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
@@ -11,9 +10,9 @@ import android.support.annotation.RequiresApi;
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 class PrecaptureCallback extends StageCallback {
 
-    @Override
-    Stage processResult(CaptureResult result) {
-        return Stage.CAPTURE;
-    }
+	@Override
+	Stage processResult(Result result) {
+		return Stage.CAPTURE;
+	}
 
 }
