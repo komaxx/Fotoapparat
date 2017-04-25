@@ -51,12 +51,12 @@ public class StillSurfaceReader {
     }
 
     private void createImageReader() {
-        Size largestSize = parametersProvider.getStillCaptureSize();
+        Size size = parametersProvider.getStillCaptureSize();
 
         imageReader = ImageReader
                 .newInstance(
-                        largestSize.width,
-                        largestSize.height,
+                        size.width,
+                        size.height,
                         ImageFormat.JPEG,
                         1
                 );
@@ -71,7 +71,16 @@ public class StillSurfaceReader {
 
         private ImageCaptureAction(ImageReader imageReader) {
             this.imageReader = imageReader;
-            imageReader.setOnImageAvailableListener(
+
+			// TODO move out of the constructor
+			Image image = imageReader.acquireLatestImage();
+
+			if (image != null) {
+				consumeImage(image);
+				return;
+			}
+
+			imageReader.setOnImageAvailableListener(
                     this,
                     CameraThread
                             .getInstance()
@@ -92,21 +101,24 @@ public class StillSurfaceReader {
         @Override
         public void onImageAvailable(ImageReader reader) {
             Image image = reader.acquireNextImage();
-            Image.Plane[] planes = image.getPlanes();
-            if (planes.length > 0) {
-                ByteBuffer buffer = planes[0].getBuffer();
-                bytes = new byte[buffer.remaining()];
-                buffer.get(bytes);
+			consumeImage(image);
 
-            }
-            image.close();
-
-            removeListener();
-
-            countDownLatch.countDown();
+			removeListener();
         }
 
-        private void removeListener() {
+		private void consumeImage(Image image) {
+			Image.Plane[] planes = image.getPlanes();
+			if (planes.length > 0) {
+				ByteBuffer buffer = planes[0].getBuffer();
+				bytes = new byte[buffer.remaining()];
+				buffer.get(bytes);
+
+			}
+			image.close();
+			countDownLatch.countDown();
+		}
+
+		private void removeListener() {
             imageReader.setOnImageAvailableListener(null, null);
         }
     }
