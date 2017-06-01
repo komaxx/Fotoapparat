@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 fotoapparatSwitcher.getCurrentFotoapparat()
-                        .changeFlashMode(Flash.TORCH);
+                        .changeFlashMode(new Flash[]{ Flash.TORCH });
             }
         });
     }
