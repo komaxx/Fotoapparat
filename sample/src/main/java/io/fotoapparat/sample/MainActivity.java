@@ -10,6 +10,7 @@ import java.io.File;
 
 import io.fotoapparat.Fotoapparat;
 import io.fotoapparat.FotoapparatSwitcher;
+import io.fotoapparat.parameter.Flash;
 import io.fotoapparat.parameter.LensPosition;
 import io.fotoapparat.photo.BitmapPhoto;
 import io.fotoapparat.preview.Frame;
@@ -79,6 +80,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 switchCamera();
+            }
+        });
+
+        View switchFlashButton = findViewById(R.id.switchFlash);
+        switchFlashButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fotoapparatSwitcher.getCurrentFotoapparat()
+                        .changeFlashMode(Flash.TORCH);
             }
         });
     }

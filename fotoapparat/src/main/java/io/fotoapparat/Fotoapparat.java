@@ -9,12 +9,14 @@ import io.fotoapparat.hardware.CameraDevice;
 import io.fotoapparat.hardware.orientation.OrientationSensor;
 import io.fotoapparat.hardware.orientation.RotationListener;
 import io.fotoapparat.hardware.orientation.ScreenOrientationProvider;
+import io.fotoapparat.parameter.Flash;
 import io.fotoapparat.parameter.provider.CapabilitiesProvider;
 import io.fotoapparat.parameter.provider.InitialParametersProvider;
 import io.fotoapparat.parameter.provider.InitialParametersValidator;
 import io.fotoapparat.result.CapabilitiesResult;
 import io.fotoapparat.result.PhotoResult;
 import io.fotoapparat.routine.AutoFocusRoutine;
+import io.fotoapparat.routine.ChangeFlashModeRoutine;
 import io.fotoapparat.routine.CheckAvailabilityRoutine;
 import io.fotoapparat.routine.ConfigurePreviewStreamRoutine;
 import io.fotoapparat.routine.StartCameraRoutine;
@@ -37,6 +39,7 @@ public class Fotoapparat {
     private final TakePictureRoutine takePictureRoutine;
     private final AutoFocusRoutine autoFocusRoutine;
     private final CheckAvailabilityRoutine checkAvailabilityRoutine;
+    private final ChangeFlashModeRoutine changeFlashModeRoutine;
     private final Executor executor;
 
     private boolean started = false;
@@ -49,6 +52,7 @@ public class Fotoapparat {
                 TakePictureRoutine takePictureRoutine,
                 AutoFocusRoutine autoFocusRoutine,
                 CheckAvailabilityRoutine checkAvailabilityRoutine,
+                ChangeFlashModeRoutine changeFlashModeRoutine,
                 Executor executor) {
         this.startCameraRoutine = startCameraRoutine;
         this.stopCameraRoutine = stopCameraRoutine;
@@ -58,6 +62,7 @@ public class Fotoapparat {
         this.takePictureRoutine = takePictureRoutine;
         this.autoFocusRoutine = autoFocusRoutine;
         this.checkAvailabilityRoutine = checkAvailabilityRoutine;
+        this.changeFlashModeRoutine = changeFlashModeRoutine;
         this.executor = executor;
     }
 
@@ -121,6 +126,10 @@ public class Fotoapparat {
                 SERIAL_EXECUTOR
         );
 
+        ChangeFlashModeRoutine changeFlashModeRoutine = new ChangeFlashModeRoutine(
+                cameraDevice
+        );
+
         AutoFocusRoutine autoFocusRoutine = new AutoFocusRoutine(cameraDevice);
 
         CheckAvailabilityRoutine checkAvailabilityRoutine = new CheckAvailabilityRoutine(
@@ -137,6 +146,7 @@ public class Fotoapparat {
                 takePictureRoutine,
                 autoFocusRoutine,
                 checkAvailabilityRoutine,
+                changeFlashModeRoutine,
                 SERIAL_EXECUTOR
         );
     }
@@ -221,6 +231,11 @@ public class Fotoapparat {
         executor.execute(
                 stopCameraRoutine
         );
+    }
+
+    public void changeFlashMode(Flash nuMode) {
+        ensureStarted();
+        changeFlashModeRoutine.switchFlashMode(nuMode);
     }
 
     private void configurePreviewStream() {
