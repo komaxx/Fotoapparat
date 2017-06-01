@@ -1,6 +1,7 @@
 package io.fotoapparat;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -127,6 +128,7 @@ public class Fotoapparat {
         );
 
         ChangeFlashModeRoutine changeFlashModeRoutine = new ChangeFlashModeRoutine(
+                builder.logger,
                 cameraDevice
         );
 
@@ -233,9 +235,14 @@ public class Fotoapparat {
         );
     }
 
-    public void changeFlashMode(Flash nuMode) {
+    /**
+     * Use this to change flash preferences.
+     * @return  The actual chosen flash mode, or null if none of
+     *          the preferences was supported.
+     */
+    public @Nullable Flash changeFlashMode(Flash[] nuModePreferences) {
         ensureStarted();
-        changeFlashModeRoutine.switchFlashMode(nuMode);
+        return changeFlashModeRoutine.switchFlashMode(nuModePreferences);
     }
 
     private void configurePreviewStream() {
